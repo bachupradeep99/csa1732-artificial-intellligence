@@ -1,0 +1,51 @@
+def is_valid(state):
+    m1, c1, m2, c2 = state
+    if m1 >= 0 and m2 >= 0 and c1 >= 0 and c2 >= 0 and (m1 == 0 or m1 >= c1) and (m2 == 0 or m2 >= c2):
+        return True
+    return False
+
+def get_successors(state):
+    m1, c1, m2, c2, boat = state
+    successors = []
+    if boat == 1:
+        for m in range(3):
+            for c in range(3):
+                if 0 < m + c <= 2:
+                    new_state = (m1 - m, c1 - c, m2 + m, c2 + c, 2)
+                    if is_valid(new_state):
+                        successors.append(new_state)
+    else:
+        for m in range(3):
+            for c in range(3):
+                if 0 < m + c <= 2:
+                    new_state = (m1 + m, c1 + c, m2 - m, c2 - c, 1)
+                    if is_valid(new_state):
+                        successors.append(new_state)
+    return successors
+
+def missionaries_cannibals():
+    start_state = (3, 3, 0, 0, 1)
+    goal_state = (0, 0, 3, 3, 2)
+    queue = [(start_state, [start_state])]
+    visited = set()
+
+    while queue:
+        state, path = queue.pop(0)
+        if state in visited:
+            continue
+        visited.add(state)
+
+        if state == goal_state:
+            return path
+
+        for successor in get_successors(state):
+            queue.append((successor, path + [successor]))
+
+    return None
+
+solution = missionaries_cannibals()
+if solution:
+    for step in solution:
+        print(step)
+else:
+    print("No solution found")
