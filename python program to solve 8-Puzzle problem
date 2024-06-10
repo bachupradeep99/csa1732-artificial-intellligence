@@ -1,0 +1,95 @@
+import heapq
+
+# Utility functions
+def flatten(state):
+    """ Convert 2D puzzle state to 1D tuple """
+    return tuple(item for row in state for item in row)
+
+def goal_state(size):
+    """ Generate the goal state for a given puzzle size """
+    return tuple(range(1, size*size)) + (0,)
+
+def print_puzzle(state):
+    """ Print the puzzle state in a readable format """
+    size = int(len(state)**0.5)
+    for i in range(size):
+        print(state[i*size:(i+1)*size])
+    print()
+
+# A* specific functions
+def manhattan_distance(state, size):
+    """ Calculate the Manhattan distance heuristic """
+    distance = 0
+    for index, value in enumerate(state):
+        if value != 0:
+            target_row, target_col = divmod(value-1, size)
+            current_row, current_col = divmod(index, size)
+            distance += abs(target_row - current_row) + abs(target_col - current_col)
+    return distance
+
+def get_neighbors(state, size):
+    """ Get all possible neighbors (valid moves) for a given puzzle state """
+    neighbors = []
+    zero_index = state.index(0)
+    row, col = divmod(zero_index, size)
+    moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    
+    for dr, dc in moves:
+        new_row, new_col = row + dr, col + dc
+        if 0 <= new_row < size and 0 <= new_col < size:
+            new_index = new_row * size + new_col
+            new_state = list(state)
+            new_state[zero_index], new_state[new_index] = new_state[new_index], new_state[zero_index]
+            neighbors.append(tuple(new_state))
+    
+    return neighbors
+
+def a_star(start_state, size):
+    """ A* algorithm to solve the 8-puzzle problem """
+    start = flatten(start_state)
+    goal = goal_state(size)
+    
+    if start == goal:
+        return [], 0
+
+    open_set = []
+    heapq.heappush(open_set, (0 + manhattan_distance(start, size), 0, start, []))
+    closed_set = set()
+    
+    while open_set:
+        _, cost, state, path = heapq.heappop(open_set)
+        
+        if state in closed_set:
+            continue
+        
+        closed_set.add(state)
+        
+        if state == goal:
+            return path, cost
+        
+        for neighbor in get_neighbors(state, size):
+            if neighbor not in closed_set:
+                heapq.heappush(open_set, (cost + 1 + manhattan_distance(neighbor, size), cost + 1, neighbor, path + [neighbor]))
+    
+    return None, None
+
+# Main function to solve the 8-Puzzle problem
+def solve_puzzle(start_state):
+    size = len(start_state)
+    path, cost = a_star(start_state, size)
+    
+    if path is None:
+        print("No solution found.")
+    else:
+        print(f"Solution found in {cost} moves:")
+        for step in path:
+            print_puzzle(step)
+
+# Example usage
+start_state = [
+    [1, 2, 3],
+    [4, 0, 6],
+    [7, 5, 8]
+]
+
+solve_puzzle(start_state)
