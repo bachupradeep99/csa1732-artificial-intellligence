@@ -1,0 +1,24 @@
+from itertools import permutations
+
+def solve_cryptarithmetic():
+    letters = 'SENDMORE'
+    digits = '0123456789'
+    for perm in permutations(digits, len(letters)):
+        assign = {letter: digit for letter, digit in zip(letters, perm)}
+        s = int(assign['S'])
+        e = int(assign['E'])
+        n = int(assign['N'])
+        d = int(assign['D'])
+        m = int(assign['M'])
+        o = int(assign['O'])
+        r = int(assign['R'])
+        
+        send = s*1000 + e*100 + n*10 + d
+        more = m*1000 + o*100 + r*10 + e
+        money = m*10000 + o*1000 + n*100 + e*10 + y
+        
+        if send + more == money:
+            print(f"{send} + {more} = {money}")
+            return
+
+solve_cryptarithmetic()
