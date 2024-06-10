@@ -1,0 +1,42 @@
+def water_jug_solver(jug1, jug2, target):
+    visited = set()
+    queue = [(0, 0)]
+
+    while queue:
+        a, b = queue.pop(0)
+        
+        if (a, b) in visited:
+            continue
+        
+        visited.add((a, b))
+
+        if a == target or b == target:
+            return True
+
+        next_states = set()
+        next_states.add((jug1, b))  # Fill jug1
+        next_states.add((a, jug2))  # Fill jug2
+        next_states.add((0, b))     # Empty jug1
+        next_states.add((a, 0))     # Empty jug2
+
+        # Pour from jug1 to jug2
+        pour = min(a, jug2 - b)
+        next_states.add((a - pour, b + pour))
+
+        # Pour from jug2 to jug1
+        pour = min(b, jug1 - a)
+        next_states.add((a + pour, b - pour))
+
+        for state in next_states:
+            queue.append(state)
+    
+    return False
+
+jug1_capacity = 4
+jug2_capacity = 3
+target_amount = 2
+
+if water_jug_solver(jug1_capacity, jug2_capacity, target_amount):
+    print("Solution found")
+else:
+    print("No solution found")
