@@ -1,0 +1,52 @@
+class CSP:
+    def __init__(self, variables, domains, neighbors, constraints):
+        self.variables = variables
+        self.domains = domains
+        self.neighbors = neighbors
+        self.constraints = constraints
+        self.assignments = {}
+
+    def consistent(self, var, value):
+        for neighbor in self.neighbors[var]:
+            if neighbor in self.assignments and not self.constraints(var, value, neighbor, self.assignments[neighbor]):
+                return False
+        return True
+
+    def backtrack(self):
+        if len(self.assignments) == len(self.variables):
+            return self.assignments
+
+        unassigned = [v for v in self.variables if v not in self.assignments]
+        var = unassigned[0]
+
+        for value in self.domains[var]:
+            if self.consistent(var, value):
+                self.assignments[var] = value
+                result = self.backtrack()
+                if result:
+                    return result
+                self.assignments.pop(var)
+        
+        return None
+
+def map_coloring():
+    variables = ['WA', 'NT', 'SA', 'Q', 'NSW', 'V', 'T']
+    domains = {v: ['red', 'green', 'blue'] for v in variables}
+    neighbors = {
+        'WA': ['NT', 'SA'],
+        'NT': ['WA', 'SA', 'Q'],
+        'SA': ['WA', 'NT', 'Q', 'NSW', 'V'],
+        'Q': ['NT', 'SA', 'NSW'],
+        'NSW': ['Q', 'SA', 'V'],
+        'V': ['SA', 'NSW'],
+        'T': []
+    }
+
+    def constraints(var1, value1, var2, value2):
+        return value1 != value2
+
+    csp = CSP(variables, domains, neighbors, constraints)
+    solution = csp.backtrack()
+    return solution
+
+print(map_coloring())
